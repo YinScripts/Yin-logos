@@ -1,0 +1,1014 @@
+--[[
+    ════════════════════════════════════════════════════════════════
+    YIN YANG - CATÁLOGO DE ICONOS FLOTANTES
+    ════════════════════════════════════════════════════════════════
+    Este archivo se descarga desde GitHub (raw) al iniciar la librería.
+    Sirve para poblar la pestaña "Logo", donde el usuario elige qué
+    ícono flotante (el botón redondo que aparece al minimizar) usar.
+
+    ────────────────────────────────────────────────────────────────
+    CAPAS (Layers) — hasta 3 imágenes por ícono, cada una con su
+    propio movimiento. Ninguna es obligatoria salvo la primera.
+    ────────────────────────────────────────────────────────────────
+
+    Cada capa admite:
+        Image     = "rbxassetid://..."   (obligatorio)
+        Movement  = "Spin" | "Pulse" | "Orbit" | "Float" | "Shake" | "Fade" | "None"
+                    (opcional, default "None" = no se mueve)
+        Speed     = número (opcional, significado según Movement — ver tabla)
+        Amount    = número (opcional, significado según Movement — ver tabla)
+        Direction = 1 o -1 (opcional, solo Spin/Orbit, default 1)
+        Style     = "Organic" | "Constant" (opcional, solo Spin, default "Organic")
+
+    Qué significan Speed y Amount en cada Movement:
+
+        Spin    Speed  = velocidad de rotación en °/segundo (default 60)
+                Amount  = (no se usa)
+        Pulse   Speed  = duración de un latido completo en segundos (default 1.2)
+                Amount  = cuánto crece/encoge en % (default 12, o sea 88%-112%)
+        Orbit   Speed  = velocidad orbital en °/segundo (default 40)
+                Amount  = radio de la órbita en píxeles (default 6)
+        Float   Speed  = duración de un ciclo sube-baja en segundos (default 2)
+                Amount  = distancia que sube/baja en píxeles (default 4)
+        Shake   Speed  = qué tan rápido tiembla, vibraciones/segundo (default 12)
+                Amount  = intensidad del temblor en píxeles (default 2)
+        Fade    Speed  = duración de un ciclo aparece-desaparece en segundos (default 1.5)
+                Amount  = transparencia máxima que alcanza, 0-1 (default 0.6)
+
+    ────────────────────────────────────────────────────────────────
+    SONIDOS — ambos opcionales, independientes entre sí
+    ────────────────────────────────────────────────────────────────
+
+    IdleSound  = suena en loop mientras el ícono está flotando (ventana cerrada)
+        Id       = "rbxassetid://..."
+        Interval = segundos entre cada reproducción (ej: 15)
+        Volume   = 0.0 a 1.0
+
+    ClickSound = suena SOLO este ícono al tocarlo para abrir la librería
+        Id       = "rbxassetid://..."
+        Volume   = 0.0 a 1.0
+
+    ────────────────────────────────────────────────────────────────
+    OTROS CAMPOS DEL ÍCONO
+    ────────────────────────────────────────────────────────────────
+
+    NoBackground = true   (opcional)
+        El botón flotante normalmente lleva detrás de las capas un círculo
+        del color del tema (Accent) y un borde. Con NoBackground = true se
+        quitan los dos y solo se ve la imagen. Úsalo con imágenes de centro
+        transparente (anillos, coronas), donde ese círculo se vería a través.
+        La librería debe tener soporte para este campo; si no, se ignora.
+
+    ────────────────────────────────────────────────────────────────
+    CÓMO AGREGAR UN ÍCONO NUEVO
+    ────────────────────────────────────────────────────────────────
+      1. Subí las imágenes que quieras usar (1 a 3) a Roblox como decals
+      2. Copiá los rbxassetid:// de cada una
+      3. Agregá una entrada nueva en Icons{} copiando la plantilla de abajo
+      4. Agregá su nombre en Order{} donde quieras que aparezca en la lista
+      5. (Opcional) Sonidos: subí el audio a Roblox y agregá IdleSound/ClickSound
+    ════════════════════════════════════════════════════════════════
+]]
+
+return {
+    Version = 2,
+
+    --// Orden en el que aparecen en la pestaña Logo
+    Order = {
+        "ClassicYinYang",
+        "YinYangPink",
+        "DraconicStyle",
+        "DraconicStyleVariant",
+        "Old",
+        "Dragon3D",
+        "Halloween",
+        "Butterflies",
+    },
+
+    Icons = {
+        --// ✅ VERIFICADO: es el ícono flotante actual de la librería
+        --// (2 capas: logo base fijo + anillo que gira encima)
+        ClassicYinYang = {
+            LabelES = "Yin Yang Clásico",
+            LabelEN = "Classic Yin Yang",
+
+            Layers = {
+                { Image = "rbxassetid://106130066496682", Movement = "None" },
+                { Image = "rbxassetid://70721341917757",  Movement = "Spin", Speed = 60, Direction = 1, Style = "Organic" },
+            },
+
+            IdleSound = {
+                Id       = "", -- (poné acá el rbxassetid:// del sonido de dragón si querés que este ícono lo traiga)
+                Interval = 15,
+                Volume   = 0.15,
+            },
+
+            -- ClickSound no está seteado acá a propósito:
+            -- si se deja nil, usa el sonido de click genérico de la UI (comportamiento actual)
+        },
+
+        --// 🧪 PRUEBA: mismo efecto que ClassicYinYang (capa base fija + anillo que gira
+        --// encima), solo cambia la imagen — de blanco/negro a blanco/rosa.
+        YinYangPink = {
+            LabelES = "Yin Yang Pink",
+            LabelEN = "Yin Yang Pink",
+
+            Layers = {
+                { Image = "rbxassetid://92154292599420",  Movement = "None" },
+                { Image = "rbxassetid://101112636011105", Movement = "Spin", Speed = 60, Direction = 1, Style = "Organic" },
+            },
+
+            -- Sin IdleSound/ClickSound propios: usa el genérico de la UI (mismo
+            -- comportamiento que ClassicYinYang cuando no se define ninguno).
+        },
+
+        DraconicStyle = {
+            LabelES = "Estilo Draconico",
+            LabelEN = "Draconic Style",
+
+            Layers = {
+                -- Capa 1: icono central quieto (mas pequeño para no tapar los dragones)
+                { Image = "rbxassetid://121924081188757", Movement = "None", Scale = 1.2 },
+                -- Capa 2: dragones girando bien grandes alrededor
+                { Image = "rbxassetid://95047780876541", Movement = "Spin", Speed = 75, Direction = 1, Style = "Organic", Scale = 2.6 },
+            },
+
+            ClickSound = { Id = "rbxassetid://122225901664901", Volume = 0.60 },
+
+            --// Ojos parpadeantes blancos superpuestos al icono quieto
+            --// X1/Y1 = ojo izquierdo, X2/Y2 = ojo derecho (0..1 relativo al ToggleButton)
+            --// Si no quedan bien, ajusta X1/X2/Y1/Y2 en pasos de 0.05
+            Eyes = {
+                X1   = 0.32,  -- ojo izquierdo (mas a la izquierda)
+                Y1   = 0.47,  -- centro vertical
+                X2   = 0.68,  -- ojo derecho (mas a la derecha)
+                Y2   = 0.47,
+                Size = 0.09,  -- mas pequeños
+                Color = Color3.fromRGB(255, 0, 0),  -- ojos rojos (antes blanco)
+            },
+        },
+
+        --// Variante: misma composición que DraconicStyle; solo cambian assets y etiqueta.
+        DraconicStyleVariant = {
+            LabelES = "Estilo Dracónico II",
+            LabelEN = "Draconic Style II",
+
+            Layers = {
+                -- Capa central fija, idéntica en escala al icono de referencia.
+                { Image = "rbxassetid://130509724933587", Movement = "None", Scale = 1.2 },
+                -- Dragones en giro orgánico, con la misma escala, velocidad y dirección.
+                { Image = "rbxassetid://133325970933941", Movement = "Spin", Speed = 75, Direction = 1, Style = "Organic", Scale = 2.6 },
+            },
+
+            ClickSound = { Id = "rbxassetid://257001341", Volume = 0.60 },
+
+            Eyes = {
+                X1    = 0.32,
+                Y1    = 0.47,
+                X2    = 0.68,
+                Y2    = 0.47,
+                Size  = 0.09,
+                Image = "rbxassetid://106889903724713",  -- imagen con los 2 ojos ya dibujados
+            },
+        },
+
+        Halloween = {
+            LabelES = "Halloween",
+            LabelEN = "Halloween",
+
+            Layers = {
+                { Image = "rbxassetid://87283021793777", Movement = "None", Scale = 1.5 },
+                { Image = "rbxassetid://129715683537822", Movement = "Spin", Speed = 130, Direction = 1, Style = "Organic", Scale = 3.25, TurboSpeed = 800, TurboSeconds = 10 },
+            },
+
+            ClickSound = {
+                Url       = "https://raw.githubusercontent.com/ProtectPoyect/Yin-icons/refs/heads/main/Sounds/new%20icon.mp3",
+                CacheName = "YinYang_IconClick_Halloween.mp3",
+                Volume    = 0.42,
+            },
+        },
+
+        --// Imagen única girando (sin capa base fija ni círculo de color). Scale 2.4 = ~101px (el botón base mide 42px
+        --// tanto en celular como en PC, así que el mismo valor sirve para ambos).
+        Butterflies = {
+            LabelES = "Butterflies",
+            LabelEN = "Butterflies",
+
+            NoBackground = true,
+
+            Layers = {
+                { Image = "rbxassetid://73217905497820", Movement = "Spin", Speed = 90, Direction = 1, Style = "Constant", Scale = 2.4 },
+            },
+        },
+
+        --// Cápsula tipo pill — icono de 4 flechas + texto "Open YinYang"
+        --// No usa Layers ni sonidos: el motor de capas se omite para este tipo.
+        Old = {
+            LabelES = "Open YinYang",
+            LabelEN = "Open YinYang",
+            Type    = "Capsule",
+        },
+
+        --// Dragón 3D (dibujado por código). El dibujo vive acá en el catálogo remoto;
+        --// la librería solo llama a Build y reenvía el click a OnClick.
+        --// Layers[1] se usa como preview de la tarjeta (y como imagen fija si Build falla).
+        Dragon3D = {
+            LabelES = "Dragón Test",
+            LabelEN = "Dragón Test",
+
+            Layers = {
+                { Image = "rbxassetid://128134413693939", Movement = "None" },
+            },
+
+            Build = function(env)
+                local RunService = game:GetService("RunService")
+                local TweenService = game:GetService("TweenService")
+                local UIS = game:GetService("UserInputService")
+                local boton = env.Button
+
+                local TAMANO = 0.45 -- tamaño del icono (1 = original, más bajo = más pequeño)
+                local BLANCO, NEGRO, GRIS = Color3.new(1, 1, 1), Color3.new(0, 0, 0), Color3.fromRGB(150, 150, 150)
+
+                -- Dragones orbitando (ajustables)
+                local ESCALA_DRAGON = 1.25 -- tamaño de cada dragon (1 = como en v5)
+                local ORBITA_RADIO = 80 -- radio de la orbita alrededor del circulo (unidades del icono)
+                local VEL_ORBITA = 0.6 -- velocidad de giro en radianes/seg (+ = sentido horario, patas hacia el circulo)
+                local AMP_ONDA = 0.45 -- cuanto se ondula el cuerpo hacia dentro/fuera de la orbita (1 = como v5)
+                local ALA_RELLENO = 8 -- segmentos de la membrana de cada panel del ala (mas = mas liso, pero mas Frames)
+                local VFX_CIRCULO = true -- detalle extra del circulo: marcas giratorias, cometas y ondas
+                local GRIS_CLARO = Color3.fromRGB(205, 205, 205)
+
+                -- Helpers -----------------------------------------------------------------
+                local function new(class, props, parent)
+                    local o = Instance.new(class)
+                    for k, v in pairs(props) do
+                        if k ~= "ZIndex" then o[k] = v end
+                    end
+                    if o:IsA("GuiObject") then
+                        -- ZIndexBehavior.Global: el hijo siempre queda por encima de su padre (padre + z local)
+                        local pz = (parent and parent:IsA("GuiObject")) and parent.ZIndex or 0
+                        o.ZIndex = pz + (props.ZIndex ~= nil and props.ZIndex or 1)
+                    end
+                    o.Parent = parent
+                    return o
+                end
+                local function redondo(f, r) new("UICorner", { CornerRadius = r or UDim.new(0.5, 0) }, f) end
+                local function borde(f, color, grosor) return new("UIStroke", { Color = color, Thickness = grosor }, f) end
+                local function caja(parent, w, h, color, z)
+                    return new("Frame", {
+                        AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromOffset(w, h),
+                        BackgroundColor3 = color, BorderSizePixel = 0, ZIndex = z or 1,
+                    }, parent)
+                end
+                local function mkLine(parent, grosor, color, z)
+                    local f = caja(parent, 1, grosor, color, z)
+                    redondo(f)
+                    return f
+                end
+                local function setLine(f, x1, y1, x2, y2)
+                    local dx, dy = x2 - x1, y2 - y1
+                    f.Size = UDim2.fromOffset(math.sqrt(dx * dx + dy * dy), f.Size.Y.Offset)
+                    f.Position = UDim2.fromOffset((x1 + x2) / 2, (y1 + y2) / 2)
+                    f.Rotation = math.deg(math.atan2(dy, dx))
+                end
+                local function mkPoly(n, grosor, color, z, parent)
+                    local l = {}
+                    for i = 1, n do l[i] = mkLine(parent, grosor, color, z) end
+                    return l
+                end
+                local function setPoly(l, p)
+                    for i = 1, #l do setLine(l[i], p[i][1], p[i][2], p[i + 1][1], p[i + 1][2]) end
+                end
+
+                -- Contenedor del icono (centrado en el botón de la librería) ----------------------
+                local root = new("Frame", {
+                    Name = "Icono", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+                    Size = UDim2.fromOffset(160, 160), BackgroundTransparency = 1,
+                }, env.Parent)
+                local escalaIcono = new("UIScale", { Scale = TAMANO }, root)
+
+                local function capa(nombre, w, h, z)
+                    local f = new("Frame", {
+                        Name = nombre, AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+                        Size = UDim2.fromOffset(w, h), BackgroundTransparency = 1, ZIndex = z,
+                    }, root)
+                    f.ZIndex = root.ZIndex + z * 20 -- banda propia (Global)
+                    return f
+                end
+
+                local orbBack = capa("OrbitaAtras", 160, 160, 1)
+                local aura = capa("Aura", 140, 140, 2)
+                redondo(aura)
+                local aura2 = capa("Aura2", 150, 150, 2)
+                redondo(aura2)
+                local strokeAura = borde(aura, BLANCO, 2)
+                local strokeAura2 = borde(aura2, GRIS, 1)
+
+                local badge = capa("Badge", 120, 120, 3)
+                badge.BackgroundTransparency = 0
+                badge.BackgroundColor3 = NEGRO
+                redondo(badge)
+                borde(badge, BLANCO, 3)
+                local anillo = caja(badge, 106, 106, NEGRO, 1)
+                anillo.Position = UDim2.fromScale(0.5, 0.5)
+                anillo.BackgroundTransparency = 1
+                redondo(anillo)
+                borde(anillo, GRIS, 1)
+                local brillo = caja(badge, 120, 120, BLANCO, 2)
+                brillo.Position = UDim2.fromScale(0.5, 0.5)
+                redondo(brillo)
+                local grad = new("UIGradient", {
+                    Transparency = NumberSequence.new({
+                        NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.5, 0.84), NumberSequenceKeypoint.new(1, 1),
+                    }),
+                }, brillo)
+
+                -- VFX del circulo: marcas giratorias, cometas y ondas -------------------------------------
+                local marcas, cometas, ondas = nil, {}, {}
+                if VFX_CIRCULO then
+                    local function capaGiro(z)
+                        return new("Frame", {
+                            AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+                            Size = UDim2.fromOffset(120, 120), BackgroundTransparency = 1, ZIndex = z,
+                        }, badge)
+                    end
+                    -- 36 marcas (cada 3ra mas larga) como el bisel de un reloj; giran despacio
+                    marcas = capaGiro(3)
+                    for i = 0, 35 do
+                        local mayor = (i % 3 == 0)
+                        local a = math.rad(i * 10)
+                        local m = caja(marcas, 1.6, mayor and 7 or 4, BLANCO, 1)
+                        m.Position = UDim2.fromOffset(60 + math.cos(a) * 47, 60 + math.sin(a) * 47)
+                        m.Rotation = math.deg(a) + 90
+                        m.BackgroundTransparency = mayor and 0.25 or 0.65
+                    end
+                    -- 2 cometas de puntos (cola que se desvanece), uno blanco y uno gris, opuestos
+                    local function mkCometa(color, n, tam, fase)
+                        local f = capaGiro(4)
+                        f.Rotation = fase
+                        for j = 0, n - 1 do
+                            local q = j / (n - 1)
+                            local a = -math.rad(q * 85)
+                            local d = caja(f, tam * (1 - 0.65 * q), tam * (1 - 0.65 * q), color, 1)
+                            d.Position = UDim2.fromOffset(60 + math.cos(a) * 40, 60 + math.sin(a) * 40)
+                            d.BackgroundTransparency = 0.05 + 0.9 * q
+                            redondo(d)
+                        end
+                        return f
+                    end
+                    cometas[1] = mkCometa(BLANCO, 16, 4.5, 0)
+                    cometas[2] = mkCometa(GRIS, 12, 3.2, 180)
+                    -- 2 ondas que salen de detras del circulo y se desvanecen
+                    for i = 1, 2 do
+                        local o = caja(root, 120, 120, NEGRO, 2 * 20)
+                        o.Position = UDim2.fromScale(0.5, 0.5)
+                        o.BackgroundTransparency = 1
+                        redondo(o)
+                        ondas[i] = { f = o, st = borde(o, i == 1 and BLANCO or GRIS, 1.5) }
+                    end
+                end
+
+                local orbFront = capa("OrbitaFrente", 160, 160, 8)
+                orbFront.Size = UDim2.fromOffset(160, 160)
+
+                -- Dragon (se crea una vez por dragon: blanco y negro) ------------------------
+                local function crearDragon(pal)
+                    -- Dentro de crearDragon: BLANCO = color de relleno y NEGRO = color de contorno de ESTE dragon
+                    -- (el dragon negro los invierte). FINO = color de las lineas delgadas sin contorno
+                    -- (alas, melena, bigotes, aletas, cola y aliento).
+                    local BLANCO, NEGRO, FINO = pal.rel, pal.con, pal.fino
+                    local RADIO_LOCAL = ORBITA_RADIO / ESCALA_DRAGON
+                    local dragon = capa(pal.nombre, 120, 120, 5)
+                    new("UIScale", { Scale = ESCALA_DRAGON }, dragon)
+
+                    -- Dragon ---------------------------------------------------------------------
+                    local N = 22
+                    -- punto del cuerpo: la misma onda de v5, pero doblada sobre el circulo de la orbita
+                    -- (t = 0 cola, t = 1 cabeza; phi = angulo de la cabeza; devuelve x, y y el angulo en la orbita)
+                    local function punto(t, tiempo, phi)
+                        local c = 0.5 + 0.5 * math.sin(tiempo * 0.6) -- 0 = estirado, 1 = enrollado
+                        local largo = 92 - 18 * c
+                        local w = (8 + 12 * t) * (1 + 0.45 * c) * AMP_ONDA * math.sin(t * math.pi * (2.3 + 1.5 * c) - tiempo * 2.4) - 8 * t
+                        local ang = phi - (1 - t) * largo / RADIO_LOCAL
+                        local r = RADIO_LOCAL - w -- w positivo = hacia el centro del circulo
+                        return 60 + r * math.cos(ang), 60 + r * math.sin(ang), ang
+                    end
+
+                    -- Ala: membrana rellena (abanico de lineas desde el hombro) con borde festoneado y 3 huesos
+                    local function mkAla(colorRelleno, zRelleno, zLinea)
+                        local n = ALA_RELLENO
+                        local a = { relleno = {}, borde = {}, huesos = {} }
+                        for i = 1, 2 * (n + 1) do a.relleno[i] = mkLine(dragon, 5, colorRelleno, zRelleno) end
+                        for i = 1, 2 * n do a.borde[i] = mkLine(dragon, 1.6, NEGRO, zLinea) end
+                        for i = 1, 3 do a.huesos[i] = mkLine(dragon, 1.8, NEGRO, zLinea) end
+                        return a
+                    end
+                    local alaLejos = mkAla(pal.alaLejos, 0, 1)
+
+                    local seg = {}
+                    for i = 1, N do
+                        local t = (i - 1) / (N - 1)
+                        local r = 2.5 + 8.5 * t ^ 0.8
+                        if t > 0.8 then r = r * (1 - 0.3 * ((t - 0.8) / 0.2) ^ 1.5) end
+                        local pico = caja(dragon, r * 0.9 + 2, r * 0.9 + 2, BLANCO, 2)
+                        pico.Rotation = 45
+                        pico.Visible = (i >= 3 and i < N)
+                        borde(pico, NEGRO, 1)
+                        local f = caja(dragon, r * 2, r * 2, BLANCO, 2)
+                        redondo(f)
+                        borde(f, NEGRO, 1.5)
+                        local d = new("Frame", {
+                            AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+                            Size = UDim2.fromScale(0.32, 0.32), BackgroundColor3 = NEGRO, BorderSizePixel = 0,
+                        }, f)
+                        redondo(d)
+                        local cresta = caja(dragon, r * 1.5, 1.2, NEGRO, 2)
+                        cresta.Visible = (i >= 2)
+                        local aleta = mkLine(dragon, 1.6, FINO, 1)
+                        aleta.Visible = (i >= 3 and i < N - 1)
+                        seg[i] = { f = f, s = pico, r = r, t = t, cr = cresta, al = aleta, visAl = (i >= 3 and i < N - 1) }
+                    end
+
+                    -- cola con punta de flecha
+                    local colaLinea = mkLine(dragon, 2.5, FINO, 2)
+                    local flecha = caja(dragon, 7, 7, BLANCO, 2)
+                    flecha.Rotation = 45
+                    borde(flecha, NEGRO, 1)
+                    local barbaA = mkLine(dragon, 2.2, FINO, 2)
+                    local barbaB = mkLine(dragon, 2.2, FINO, 2)
+
+                    -- Ayudas de dibujo: cintas con contorno y formas rellenas ---------------------
+                    local function mkCinta(parent, z, colorRelleno, grosores, bw)
+                        local c = { n = #grosores, borde = {}, relleno = {} }
+                        for i = 1, c.n do c.borde[i] = mkLine(parent, grosores[i] + 2 * bw, NEGRO, z) end
+                        for i = 1, c.n do c.relleno[i] = mkLine(parent, grosores[i], colorRelleno, z) end
+                        return c
+                    end
+                    local function setCinta(c, pts)
+                        for i = 1, c.n do
+                            local a, b = pts[i], pts[i + 1]
+                            local dx, dy = b[1] - a[1], b[2] - a[2]
+                            local l = math.sqrt(dx * dx + dy * dy)
+                            if l < 0.01 then dx, dy, l = 0.01, 0, 0.01 end
+                            local ux, uy = dx / l, dy / l
+                            local fb, fr = c.borde[i], c.relleno[i]
+                            local eb, er = fb.Size.Y.Offset / 2, fr.Size.Y.Offset / 2
+                            setLine(fb, a[1] - ux * eb, a[2] - uy * eb, b[1] + ux * eb, b[2] + uy * eb)
+                            setLine(fr, a[1] - ux * er, a[2] - uy * er, b[1] + ux * er, b[2] + uy * er)
+                        end
+                    end
+
+                    local function perfilPoly(verts, paso)
+                        local pts = {}
+                        for i = 1, #verts do
+                            local a, b = verts[i], verts[i % #verts + 1]
+                            local l = math.sqrt((b[1] - a[1]) ^ 2 + (b[2] - a[2]) ^ 2)
+                            local m = math.max(1, math.ceil(l / paso))
+                            for j = 0, m - 1 do
+                                local f = j / m
+                                pts[#pts + 1] = { a[1] + (b[1] - a[1]) * f, a[2] + (b[2] - a[2]) * f }
+                            end
+                        end
+                        return pts
+                    end
+                    -- forma rellena: abanico de lineas desde un centro + contorno negro
+                    local function mkForma(verts, centro, z, grosorRelleno, colorRelleno, grosorBorde, saltar)
+                        local f = { verts = verts, centro = centro, pts = perfilPoly(verts, 2.4), relleno = {}, bordes = {}, saltar = saltar or {} }
+                        for i = 1, #f.pts do f.relleno[i] = mkLine(dragon, grosorRelleno, colorRelleno, z) end
+                        for i = 1, #verts do
+                            if not f.saltar[i] then f.bordes[i] = mkLine(dragon, grosorBorde, NEGRO, z + 1) end
+                        end
+                        return f
+                    end
+                    -- (a, b) locales de la forma -> pantalla: origen + a*(ax,ay) + b*(bx,by)
+                    local function setForma(f, ox, oy, ax, ay, bx, by)
+                        local c = f.centro
+                        local cx, cy = ox + c[1] * ax + c[2] * bx, oy + c[1] * ay + c[2] * by
+                        for i, q in ipairs(f.pts) do
+                            local X, Y = ox + q[1] * ax + q[2] * bx, oy + q[1] * ay + q[2] * by
+                            local dx, dy = X - cx, Y - cy
+                            local l = math.max(math.sqrt(dx * dx + dy * dy), 0.001)
+                            local k = math.max(l - 1.2, 0.5) / l
+                            setLine(f.relleno[i], cx, cy, cx + dx * k, cy + dy * k)
+                        end
+                        local n = #f.verts
+                        for i = 1, n do
+                            local fb = f.bordes[i]
+                            if fb then
+                                local a, b = f.verts[i], f.verts[i % n + 1]
+                                local x1, y1 = ox + a[1] * ax + a[2] * bx, oy + a[1] * ay + a[2] * by
+                                local x2, y2 = ox + b[1] * ax + b[2] * bx, oy + b[1] * ay + b[2] * by
+                                local dx, dy = x2 - x1, y2 - y1
+                                local l = math.max(math.sqrt(dx * dx + dy * dy), 0.001)
+                                local e = fb.Size.Y.Offset / 2
+                                setLine(fb, x1 - dx / l * e, y1 - dy / l * e, x2 + dx / l * e, y2 + dy / l * e)
+                            end
+                        end
+                    end
+                    local function ponerCintaCabeza(c, lista, hx, hy, ux, uy, nx, ny, extraB)
+                        local pts = {}
+                        for i, q in ipairs(lista) do
+                            local b = q[2] + (extraB and extraB[i] or 0)
+                            pts[i] = { hx + ux * q[1] + nx * b, hy + uy * q[1] + ny * b }
+                        end
+                        setCinta(c, pts)
+                    end
+
+                    -- Patas de dragon: muslo musculoso, rodilla con espolon, canilla, pie y 3 garras ---
+                    local IDX_PATA1, IDX_PATA2, IDX_PATA3, IDX_PATA4, IDX_ALA = 8, 13, 9, 14, 15
+                    local function mkPata(color, z, e)
+                        local p = { e = e, garras = {} }
+                        p.pierna = mkCinta(dragon, z, color, { 8 * e, 4.8 * e, 3.6 * e }, 1)
+                        for i = 1, 3 do
+                            local g = mkLine(dragon, 2.2 * e, color, z)
+                            borde(g, NEGRO, 0.8)
+                            p.garras[i] = g
+                        end
+                        p.rod = caja(dragon, 5 * e, 5 * e, color, z)
+                        p.rod.Rotation = 45
+                        borde(p.rod, NEGRO, 0.8)
+                        return p
+                    end
+                    local pata3 = mkPata(pal.patasLejos, 1, 0.8) -- patas del lado lejano
+                    local pata4 = mkPata(pal.patasLejos, 1, 0.8)
+                    local pata1 = mkPata(BLANCO, 3, 1)
+                    local pata2 = mkPata(BLANCO, 3, 1)
+                    local alaCerca = mkAla(BLANCO, 3, 4)
+
+                    -- cabeza de dragon: perfil angular (x = hacia delante, y = hacia arriba)
+                    local CRANEO = {
+                        { -7, -3.5 }, { -8.5, 3.5 }, -- lado trasero (queda dentro del cuello, sin contorno)
+                        { -4, 10 }, { 3, 11.5 }, { 9, 9 }, { 12, 9.8 }, -- nuca, frente y arco de la ceja
+                        { 16, 7 }, { 22, 6.2 }, { 26, 7.4 }, { 29.5, 5.6 }, -- hocico con bulto de la nariz
+                        { 31, 2.6 }, { 30, -0.4 },
+                        { 24, -1.6 }, { 16, -2.6 }, { 8, -3.6 }, -- linea de la boca
+                        { 2, -6.2 }, { -4, -6.6 }, -- mejilla
+                    }
+                    local MANDIBULA = {
+                        { 0, 0 }, { 11, 0 }, { 22, 0 }, { 23.2, -1.8 }, { 20, -4.4 },
+                        { 12, -5.4 }, { 3.5, -6 }, { -2.5, -4.4 }, { -2.5, -0.6 },
+                    }
+                    local CUERNO_LEJOS = { { -3, 8.5 }, { -8, 12.5 }, { -14, 14.3 }, { -21, 12.5 } }
+                    local CUERNO_CERCA = { { 4, 10 }, { 0, 15 }, { -6, 18.3 }, { -13, 19.6 }, { -21, 17.8 } }
+                    local ALETAS = {
+                        { { -5.5, 4 }, { -11, 5.5 }, { -18, 7.5 } },
+                        { { -6, 0 }, { -12, 0.5 }, { -19, 0 } },
+                        { { -5.5, -3.5 }, { -11, -4.5 }, { -17, -7 } },
+                    }
+
+                    local mandibula = mkForma(MANDIBULA, { 10, -2.8 }, 4, 3.4, BLANCO, 1.6)
+                    local craneo = mkForma(CRANEO, { 9, 1.5 }, 6, 3.4, BLANCO, 1.8, { [1] = true })
+                    local cuernoLejos = mkCinta(dragon, 3, BLANCO, { 4.6, 3.6, 2.2 }, 1)
+                    local cuernoCerca = mkCinta(dragon, 8, BLANCO, { 6, 5, 3.8, 2.4 }, 1)
+                    local aletasCab = {}
+                    for i = 1, 3 do aletasCab[i] = mkCinta(dragon, 3, BLANCO, { 3, 1.8 }, 0.8) end
+
+                    local ojo = caja(dragon, 7, 4.6, NEGRO, 9)
+                    redondo(ojo)
+                    local destello = new("Frame", {
+                        AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.65, 0.3), Size = UDim2.fromScale(0.4, 0.4),
+                        BackgroundColor3 = BLANCO, BorderSizePixel = 0, ZIndex = 6,
+                    }, ojo)
+                    redondo(destello)
+                    local nariz = caja(dragon, 3.4, 2.2, NEGRO, 9)
+                    redondo(nariz)
+                    local ceja = mkLine(dragon, 2.6, NEGRO, 9)
+                    local boca = mkLine(dragon, 1.4, NEGRO, 9)
+                    local colmillos = {}
+                    for i = 1, 5 do
+                        local d = mkLine(dragon, 2.2, BLANCO, 8)
+                        borde(d, NEGRO, 0.8)
+                        colmillos[i] = d
+                    end
+                    local melena = {}
+                    for i = 1, 5 do melena[i] = mkLine(dragon, 2.2, FINO, 3) end
+                    local bigoteA = mkPoly(2, 1.5, FINO, 8, dragon)
+                    local bigoteB = mkPoly(2, 1.5, FINO, 8, dragon)
+
+                    -- curva festoneada de la membrana entre dos puntas (n segmentos; se hunde hacia el hombro)
+                    local function curvaAla(sx, sy, p, q, n)
+                        local mx, my = (p[1] + q[1]) / 2, (p[2] + q[2]) / 2
+                        local cx, cy = mx + (sx - mx) * 0.55, my + (sy - my) * 0.55
+                        local r = {}
+                        for j = 0, n do
+                            local u = j / n
+                            local a, b, c = (1 - u) * (1 - u), 2 * u * (1 - u), u * u
+                            r[j + 1] = { a * p[1] + b * cx + c * q[1], a * p[2] + b * cy + c * q[2] }
+                        end
+                        return r
+                    end
+
+                    local function actualizarAla(ala, sx, sy, escala, flap, base)
+                        local largos = { 40, 50, 36 }
+                        local angulos = { -100, -130, -165 }
+                        local puntas = {}
+                        for i = 1, 3 do
+                            local a = math.rad(angulos[i] + flap * i * 0.35 + (base or 0))
+                            local tx = sx + math.cos(a) * largos[i] * escala
+                            local ty = sy + math.sin(a) * largos[i] * escala
+                            puntas[i] = { tx, ty }
+                            setLine(ala.huesos[i], sx, sy, tx, ty)
+                        end
+                        -- membrana: 2 paneles (punta1-punta2 y punta2-punta3), relleno en abanico desde el hombro + borde
+                        local n = ALA_RELLENO
+                        for p = 1, 2 do
+                            local curva = curvaAla(sx, sy, puntas[p], puntas[p + 1], n)
+                            for j = 1, n + 1 do
+                                local q = curva[j]
+                                local dx, dy = q[1] - sx, q[2] - sy
+                                local l = math.max(math.sqrt(dx * dx + dy * dy), 0.001)
+                                local k = math.max(l - 2.2, 0.5) / l
+                                setLine(ala.relleno[(p - 1) * (n + 1) + j], sx, sy, sx + dx * k, sy + dy * k)
+                            end
+                            for j = 1, n do
+                                setLine(ala.borde[(p - 1) * n + j], curva[j][1], curva[j][2], curva[j + 1][1], curva[j + 1][2])
+                            end
+                        end
+                    end
+
+                    local function actualizarPata(p, s, fase, dirRod)
+                        local e = p.e
+                        local dx, dy, nx, ny = s.dx, s.dy, s.nx, s.ny
+                        local function M(a, b)
+                            return s.x + dx * a + nx * b, s.y + dy * a + ny * b
+                        end
+                        local L1, L2 = 10 * e, 10 * e
+                        local ha, hb = 0, -s.r * 0.45
+                        local ta = ha + 3 * e + math.sin(fase) * 4.5 * e
+                        local tb = hb - 15.5 * e + 3.5 * e * math.max(0, math.cos(fase))
+                        local vx, vy = ta - ha, tb - hb
+                        local d = math.sqrt(vx * vx + vy * vy)
+                        local dmax = L1 + L2 - 0.5
+                        if d > dmax then
+                            vx, vy, d = vx * dmax / d, vy * dmax / d, dmax
+                            ta, tb = ha + vx, hb + vy
+                        end
+                        -- dirRod = 1: rodilla hacia delante (patas traseras); -1: codo hacia atras (patas delanteras)
+                        local alfa = math.acos(math.clamp((L1 * L1 + d * d - L2 * L2) / (2 * L1 * d), -1, 1)) * dirRod
+                        local ca, sa = math.cos(alfa), math.sin(alfa)
+                        local ux_, uy_ = vx / d, vy / d
+                        local ka = ha + (ux_ * ca - uy_ * sa) * L1
+                        local kb = hb + (ux_ * sa + uy_ * ca) * L1
+                        local fa, fb = ta + 4.8 * e, tb - 1.6 * e
+                        local X1, Y1 = M(ha, hb)
+                        local X2, Y2 = M(ka, kb)
+                        local X3, Y3 = M(ta, tb)
+                        local X4, Y4 = M(fa, fb)
+                        setCinta(p.pierna, { { X1, Y1 }, { X2, Y2 }, { X3, Y3 }, { X4, Y4 } })
+                        local angs = { -65, -30, 5 }
+                        local lens = { 4, 4.6, 4.2 }
+                        for i = 1, 3 do
+                            local r_ = math.rad(angs[i])
+                            local X5, Y5 = M(fa + math.cos(r_) * lens[i] * e, fb + math.sin(r_) * lens[i] * e)
+                            setLine(p.garras[i], X4, Y4, X5, Y5)
+                        end
+                        local RX, RY = M(ka + dirRod * 1.2, kb)
+                        p.rod.Position = UDim2.fromOffset(RX, RY)
+                        p.rod.Rotation = math.deg(math.atan2(dy, dx)) + 45
+                    end
+
+                    -- particulas de aliento
+                    local parts = {}
+                    for i = 1, 36 do
+                        local f = caja(dragon, 3, 3, FINO, 12)
+                        redondo(f)
+                        f.Visible = false
+                        parts[i] = { f = f, life = 0, max = 1, x = 0, y = 0, vx = 0, vy = 0 }
+                    end
+
+                    local emitT = 0
+                    local mirada = 0 -- giro de la cabeza hacia el puntero (grados)
+                    local faseAla = 0 -- fase acumulada del aleteo
+
+                    -- animacion de este dragon (se llama cada frame desde el RenderStepped)
+                    local function actualizar(Tg, dt, k, rug, ptrDx, ptrDy)
+                        local T = Tg + pal.desfaseT                  -- tiempo propio (desfasado) de este dragon
+                        local phi = pal.fase + VEL_ORBITA * Tg        -- angulo de la cabeza en la orbita
+
+                        -- cuerpo
+                        local pts = {}
+                        for i = 1, N do
+                            local x, y, a = punto(seg[i].t, T, phi)
+                            pts[i] = { x, y }
+                            seg[i].ang = a
+                        end
+                        for i = 1, N do
+                            local s = seg[i]
+                            local a, b = pts[math.max(i - 1, 1)], pts[math.min(i + 1, N)]
+                            local dx, dy = b[1] - a[1], b[2] - a[2]
+                            local l = math.sqrt(dx * dx + dy * dy)
+                            dx, dy = dx / l, dy / l
+                            s.x, s.y, s.dx, s.dy, s.nx, s.ny = pts[i][1], pts[i][2], dx, dy, dy, -dx
+                            s.f.Position = UDim2.fromOffset(s.x, s.y)
+                            s.s.Position = UDim2.fromOffset(s.x + s.nx * (s.r + 0.5), s.y + s.ny * (s.r + 0.5))
+                            s.s.Rotation = math.deg(math.atan2(dy, dx)) + 45
+                            s.cr.Position = UDim2.fromOffset(s.x + dx * s.r * 0.35, s.y + dy * s.r * 0.35)
+                            s.cr.Rotation = math.deg(math.atan2(dy, dx)) + 90
+                            if s.visAl then
+                                local abx, aby = s.x + s.nx * (s.r + 1), s.y + s.ny * (s.r + 1)
+                                local off = 6 + s.r * 0.5
+                                local ond = math.sin(T * 5 + i) * 2
+                                setLine(s.al, abx, aby, abx + s.nx * off - dx * 4 + dx * ond, aby + s.ny * off - dy * 4 + dy * ond)
+                            end
+                        end
+
+                        -- cola con punta de flecha
+                        local c1 = seg[1]
+                        local fpx, fpy = c1.x - c1.dx * 12, c1.y - c1.dy * 12
+                        setLine(colaLinea, c1.x, c1.y, fpx, fpy)
+                        flecha.Position = UDim2.fromOffset(fpx + c1.dx * 3, fpy + c1.dy * 3)
+                        flecha.Rotation = math.deg(math.atan2(c1.dy, c1.dx)) + 45
+                        setLine(barbaA, fpx, fpy, fpx + c1.dx * 8 + c1.nx * 5, fpy + c1.dy * 8 + c1.ny * 5)
+                        setLine(barbaB, fpx, fpy, fpx + c1.dx * 8 - c1.nx * 5, fpy + c1.dy * 8 - c1.ny * 5)
+
+                        actualizarPata(pata3, seg[IDX_PATA3], T * 2.4 + 3.1, 1)
+                        actualizarPata(pata4, seg[IDX_PATA4], T * 2.4 + 5, -1)
+                        actualizarPata(pata1, seg[IDX_PATA1], T * 2.4, 1)
+                        actualizarPata(pata2, seg[IDX_PATA2], T * 2.4 + 2, -1)
+
+                        local sa = seg[IDX_ALA]
+                        local baseAla = math.deg(sa.ang) + 90 -- direccion de avance en la orbita (en v5 era 0)
+                        local velAla, ampAla = 3 * (1 + rug), 28 * (1 + rug * 0.6)
+                        faseAla = faseAla + dt * velAla
+                        actualizarAla(alaLejos, sa.x + sa.dx * 5 + sa.nx * 1 + sa.nx * sa.r * 0.5, sa.y + sa.dy * 5 + sa.ny * 1 + sa.ny * sa.r * 0.5, 0.75, math.sin(faseAla + 1) * ampAla, baseAla)
+                        actualizarAla(alaCerca, sa.x + sa.nx * sa.r * 0.5, sa.y + sa.ny * sa.r * 0.5, 1, math.sin(faseAla) * ampAla, baseAla)
+
+                        -- cabeza
+                        local H = seg[N]
+                        local ux, uy = H.dx, H.dy
+                        -- mirar hacia el puntero (solo mientras se toca o se pasa el cursor)
+                        local objMirada = 0
+                        if ptrDx then
+                            local dif = math.deg(math.atan2(ptrDy, ptrDx) - math.atan2(uy, ux))
+                            dif = (dif + 180) % 360 - 180
+                            objMirada = math.clamp(dif, -35, 35)
+                        end
+                        mirada = mirada + (objMirada - mirada) * k
+                        local cm, sm = math.cos(math.rad(mirada)), math.sin(math.rad(mirada))
+                        ux, uy = ux * cm - uy * sm, ux * sm + uy * cm
+                        local nx, ny = uy, -ux
+                        local hx, hy = H.x + math.sin(T * 45) * rug * 1.2, H.y
+                        local ang = math.deg(math.atan2(uy, ux))
+                        local function W(a, b) return hx + ux * a + nx * b, hy + uy * a + ny * b end
+
+                        -- craneo y mandibula (la mandibula gira desde la comisura)
+                        setForma(craneo, hx, hy, ux, uy, nx, ny)
+                        local abre = 2 + 2 * math.sin(T * 3) + rug * 9
+                        local jx, jy = W(8, -3.6)
+                        local jang = ang - 8.3 + abre * 2.5
+                        local jux, juy = math.cos(math.rad(jang)), math.sin(math.rad(jang))
+                        local jnx, jny = juy, -jux
+                        setForma(mandibula, jx, jy, jux, juy, jnx, jny)
+
+                        -- colmillos: 3 superiores (curvados hacia atras) y 2 inferiores
+                        local sup = { { 27, 3.5 }, { 21, 5.2 }, { 15, 3.6 } }
+                        for i = 1, 3 do
+                            local a0 = sup[i][1]
+                            local b0 = -3.6 + (a0 - 8) * (3.2 / 22)
+                            local x1, y1 = W(a0, b0 + 0.4)
+                            local x2, y2 = W(a0 - 1.1, b0 - sup[i][2])
+                            setLine(colmillos[i], x1, y1, x2, y2)
+                        end
+                        local inf = { { 11, 3.2 }, { 17, 2.6 } }
+                        for i = 1, 2 do
+                            local a0, l0 = inf[i][1], inf[i][2]
+                            local x1, y1 = jx + jux * a0 - jnx * 0.2, jy + juy * a0 - jny * 0.2
+                            local x2, y2 = jx + jux * (a0 + 0.8) + jnx * l0, jy + juy * (a0 + 0.8) + jny * l0
+                            setLine(colmillos[3 + i], x1, y1, x2, y2)
+                        end
+
+                        -- comisura, ojo con ceja fiera y fosa nasal
+                        local m1x, m1y = W(8, -3.6)
+                        local m2x, m2y = W(3, -0.8)
+                        setLine(boca, m1x, m1y, m2x, m2y)
+                        local ex, ey = W(11.5, 4.6)
+                        ojo.Position = UDim2.fromOffset(ex, ey)
+                        ojo.Rotation = ang + 20
+                        local c1x, c1y = W(5, 9.4)
+                        local c2x, c2y = W(16.8, 5.4)
+                        setLine(ceja, c1x, c1y, c2x, c2y)
+                        local nax, nay = W(26.8, 5)
+                        nariz.Position = UDim2.fromOffset(nax, nay)
+                        nariz.Rotation = ang + 10
+
+                        -- cuernos curvos y aletas de la nuca
+                        ponerCintaCabeza(cuernoLejos, CUERNO_LEJOS, hx, hy, ux, uy, nx, ny)
+                        ponerCintaCabeza(cuernoCerca, CUERNO_CERCA, hx, hy, ux, uy, nx, ny)
+                        for i = 1, 3 do
+                            ponerCintaCabeza(aletasCab[i], ALETAS[i], hx, hy, ux, uy, nx, ny,
+                                { 0, math.sin(T * 3 + i) * 1, math.sin(T * 3 + i - 0.6) * 2.2 })
+                        end
+
+                        -- melena ondulante
+                        for i = 1, 5 do
+                            local a = math.rad(10 + (i - 1) * 18 + math.sin(T * 3 + i) * 6)
+                            local dirx = nx * math.cos(a) - ux * math.sin(a)
+                            local diry = ny * math.cos(a) - uy * math.sin(a)
+                            local sx0, sy0 = W(-4, 7)
+                            local largo = 12 + (i % 2) * 6 + math.sin(T * 4 + i) * 2
+                            setLine(melena[i], sx0, sy0, sx0 + dirx * largo, sy0 + diry * largo)
+                        end
+                        -- bigotes
+                        local w = math.sin(T * 4) * 4
+                        local bx, by = W(28, 0)
+                        setPoly(bigoteA, {
+                            { bx, by },
+                            { bx + ux * 9 + nx * (7 + w), by + uy * 9 + ny * (7 + w) },
+                            { bx + ux * 3 + nx * (15 + w * 1.5), by + uy * 3 + ny * (15 + w * 1.5) },
+                        })
+                        setPoly(bigoteB, {
+                            { bx, by },
+                            { bx + ux * 9 - nx * (7 - w), by + uy * 9 - ny * (7 - w) },
+                            { bx + ux * 3 - nx * (15 - w * 1.5), by + uy * 3 - ny * (15 - w * 1.5) },
+                        })
+
+                        -- aliento (mas fuego mientras ruge)
+                        emitT = emitT + dt
+                        if emitT > (rug > 0 and 0.015 or 0.06) then
+                            emitT = 0
+                            local cuantas = rug > 0 and 3 or 1
+                            for _, p in ipairs(parts) do
+                                if cuantas <= 0 then break end
+                                if p.life <= 0 then
+                                    local v = (30 + math.random() * 15) * (1 + rug * 1.5)
+                                    p.x, p.y = hx + ux * 30 - nx * (2 + abre * 0.5), hy + uy * 30 - ny * (2 + abre * 0.5)
+                                    p.vx = ux * v + nx * (math.random() * 16 - 8) * (1 + rug)
+                                    p.vy = uy * v + ny * (math.random() * 16 - 8) * (1 + rug) - 8
+                                    p.max = (0.7 + math.random() * 0.4) * (1 + rug * 0.6)
+                                    p.life = p.max
+                                    p.f.Visible = true
+                                    cuantas = cuantas - 1
+                                end
+                            end
+                        end
+                        for _, p in ipairs(parts) do
+                            if p.life > 0 then
+                                p.life = p.life - dt
+                                p.x, p.y = p.x + p.vx * dt, p.y + p.vy * dt
+                                local q = math.max(p.life / p.max, 0)
+                                p.f.Position = UDim2.fromOffset(p.x, p.y)
+                                p.f.Size = UDim2.fromOffset(1 + 3 * q, 1 + 3 * q)
+                                p.f.BackgroundTransparency = 1 - q
+                                if p.life <= 0 then p.f.Visible = false end
+                            end
+                        end
+                    end
+
+                    return { capa = dragon, actualizar = actualizar }
+                end
+
+                local dragonBlanco = crearDragon({
+                    nombre = "Dragon", rel = BLANCO, con = NEGRO, fino = BLANCO,
+                    patasLejos = GRIS_CLARO, alaLejos = GRIS, fase = 0, desfaseT = 0,
+                })
+                local dragonNegro = crearDragon({
+                    nombre = "DragonNegro", rel = NEGRO, con = BLANCO, fino = BLANCO,
+                    patasLejos = Color3.fromRGB(60, 60, 60), alaLejos = Color3.fromRGB(70, 70, 70), fase = math.pi, desfaseT = 2.6,
+                })
+
+                -- particulas orbitales
+                local orbitas = {}
+                for i = 1, 12 do
+                    local f = caja(orbFront, 3, 3, BLANCO, 1)
+                    redondo(f)
+                    orbitas[i] = { f = f, lado = "frente" }
+                end
+
+                -- Interaccion del icono (el click lo recibe la libreria y llama a OnClick) -----------
+                local conexiones = {}
+                local hover, presionado = false, false
+                local function esPuntero(input)
+                    return input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch
+                end
+                table.insert(conexiones, boton.MouseEnter:Connect(function() hover = true end))
+                table.insert(conexiones, boton.MouseLeave:Connect(function() hover = false end))
+                table.insert(conexiones, boton.InputBegan:Connect(function(input)
+                    if esPuntero(input) then presionado = true end
+                end))
+                table.insert(conexiones, UIS.InputEnded:Connect(function(input)
+                    if esPuntero(input) then presionado = false end
+                end))
+
+                local onda -- se define mas abajo
+                local rug = 0 -- rugido: sube a 1 al tocar y baja a 0
+
+                function onda()
+                    local o = caja(root, 100, 100, NEGRO, 9 * 20)
+                    o.Position = UDim2.fromScale(0.5, 0.5)
+                    o.BackgroundTransparency = 1
+                    redondo(o)
+                    local st = borde(o, BLANCO, 3)
+                    local info = TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(o, info, { Size = UDim2.fromOffset(200, 200) }):Play()
+                    local tw = TweenService:Create(st, info, { Transparency = 1 })
+                    tw:Play()
+                    tw.Completed:Connect(function() o:Destroy() end)
+                end
+
+                -- Animacion -------------------------------------------------------------------
+                local T, tx, ty = 0, 0, 0
+                local function par(l, d) l.Position = UDim2.new(0.5, tx * d * 7, 0.5, ty * d * 7) end
+
+                local conn = RunService.RenderStepped:Connect(function(dt)
+                    T = T + dt
+
+                    -- flotar + inclinacion
+                    local flota = math.sin(T * 1.6) * 6
+                    root.Position = UDim2.new(0.5, 0, 0.5, flota)
+                    local objX, objY, ptrDx, ptrDy
+                    if hover or presionado then
+                        local m = UIS:GetMouseLocation()
+                        local c = root.AbsolutePosition + root.AbsoluteSize / 2
+                        ptrDx, ptrDy = m.X - c.X, m.Y - c.Y
+                        objX = math.clamp((m.X - c.X) / (80 * TAMANO), -1, 1)
+                        objY = math.clamp((m.Y - c.Y) / (80 * TAMANO), -1, 1)
+                    else
+                        objX, objY = math.sin(T * 0.9) * 0.6, math.cos(T * 0.7) * 0.4
+                    end
+                    local k = math.min(1, dt * 8)
+                    rug = math.max(0, rug - dt / 1.2)
+                    tx = tx + (objX - tx) * k
+                    ty = ty + (objY - ty) * k
+                    local esc = TAMANO * (presionado and 0.92 or (hover and 1.07 or 1)) * (1 + 0.1 * rug)
+                    escalaIcono.Scale = escalaIcono.Scale + (esc - escalaIcono.Scale) * k
+
+                    par(aura, 0.3); par(aura2, 0.2); par(badge, 0.6); par(dragonBlanco.capa, 1.3); par(dragonNegro.capa, 1.3)
+                    par(orbBack, -0.4); par(orbFront, 1.9)
+                    grad.Rotation = 45 + tx * 40 - ty * 25
+                    grad.Offset = Vector2.new(tx * 0.4, ty * 0.4)
+
+                    -- aura pulsante
+                    local pulso = math.sin(T * 2.2)
+                    strokeAura.Transparency = 0.45 + 0.35 * pulso
+                    strokeAura2.Transparency = 0.55 - 0.3 * pulso
+                    aura.Size = UDim2.fromOffset(136 + 6 * pulso, 136 + 6 * pulso)
+                    aura2.Size = UDim2.fromOffset(150 - 6 * pulso, 150 - 6 * pulso)
+
+                    -- VFX del circulo
+                    if VFX_CIRCULO then
+                        marcas.Rotation = -T * 7
+                        cometas[1].Rotation = (T * 80) % 360
+                        cometas[2].Rotation = 180 + (T * 80) % 360
+                        for i, o in ipairs(ondas) do
+                            local p = (T / 3.4 + (i - 1) * 0.5) % 1
+                            local d = 120 + p * 84
+                            o.f.Size = UDim2.fromOffset(d, d)
+                            o.st.Transparency = 1 - 0.55 * math.sin(p * math.pi)
+                        end
+                    end
+
+                    dragonBlanco.actualizar(T, dt, k, rug, ptrDx, ptrDy)
+                    dragonNegro.actualizar(T, dt, k, rug, ptrDx, ptrDy)
+
+                    -- orbitas 3D
+                    local fi = math.rad(-25)
+                    local cf, sf = math.cos(fi), math.sin(fi)
+                    for i, o in ipairs(orbitas) do
+                        local a = T * 0.9 + i * (math.pi * 2 / #orbitas)
+                        local ex, ey = math.cos(a) * 70, math.sin(a) * 24
+                        local X, Y = 80 + ex * cf - ey * sf, 80 + ex * sf + ey * cf
+                        local lado = math.sin(a) > 0 and "frente" or "atras"
+                        if lado ~= o.lado then
+                            o.lado = lado
+                            o.f.Parent = (lado == "frente") and orbFront or orbBack
+                            o.f.ZIndex = o.f.Parent.ZIndex + 1 -- Global: al cambiar de padre hay que recalcular
+                        end
+                        local s = 3 + 1.5 * math.sin(a)
+                        o.f.Size = UDim2.fromOffset(s, s)
+                        o.f.Position = UDim2.fromOffset(X, Y)
+                        o.f.BackgroundTransparency = 0.15 + 0.5 * math.sin(T * 5 + i) ^ 2
+                    end
+                end)
+
+                table.insert(conexiones, conn)
+                env.Parent.Destroying:Connect(function()
+                    for _, c in ipairs(conexiones) do pcall(function() c:Disconnect() end) end
+                end)
+
+                return {
+                    OnClick = function()
+                        rug = 1
+                        onda()
+                    end,
+                }
+            end,
+        },
+
+        --// Agrega aca los proximos iconos, copiando esta plantilla:
+        --[[
+        NombreInterno = {
+            LabelES = "Nombre en Español",
+            LabelEN = "Name in English",
+
+            Layers = {
+                { Image = "rbxassetid://TU_ID_1", Movement = "Spin",  Speed = 50, Direction = 1 },
+                { Image = "rbxassetid://TU_ID_2", Movement = "Pulse", Speed = 1.2, Amount = 12 },
+                { Image = "rbxassetid://TU_ID_3", Movement = "Orbit", Speed = 40, Amount = 6, Direction = -1 },
+            },
+
+            IdleSound  = { Id = "rbxassetid://TU_SONIDO_IDLE",  Interval = 15, Volume = 0.15 },
+            ClickSound = { Id = "rbxassetid://TU_SONIDO_CLICK", Volume = 0.6 },
+        },
+        ]]
+    },
+}
