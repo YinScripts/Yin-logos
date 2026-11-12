@@ -1,6 +1,6 @@
 <div align="center">
 
-![Yin Logos: catálogo de iconos flotantes](docs/assets/yin-logos.jpg)
+![Yin Logos: catálogo de iconos flotantes](docs/assets/logos-portada-v2.jpg)
 
 # Yin Logos ✨
 
@@ -17,7 +17,7 @@ Pequeños detalles que le dan identidad a tu interfaz.
 
 Los logos son los iconos que se pueden elegir para el botón flotante de Yin Yang. El catálogo permite combinar imágenes en capas y definir movimientos como giro, pulso, órbita, flotación o desvanecimiento. Algunas opciones también pueden incluir sonidos.
 
-La portada muestra Yin Yang como ejemplo visual del proyecto y un icono flotante sobre la interfaz.
+![El catálogo de logos en Yin Yang](docs/assets/logos.jpg)
 
 ## Catálogo
 
