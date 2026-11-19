@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 96" fill="none" stroke="#e5f4f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<title>Yin Emote Creator icons</title>
+<g transform="translate(8 8)"><path d="M6 3h14l7 7v19H6z M20 3v8h7 M11 18h11 M11 24h11"/></g>
+<g transform="translate(56 8)"><path d="M3 11h10l3 3h14l-3 14H4z M5 11V7h9l3 4"/></g>
+<g transform="translate(104 8)"><path d="M5 4h22v24H5z M9 4v9h14V4 M9 28V17h14v11"/></g>
+<g transform="translate(152 8)"><path d="M8 5v22l19-11z"/></g>
+<g transform="translate(200 8)"><path d="M7 7h18v18H7z"/></g>
+<g transform="translate(248 8)"><path d="M16 3 29 16 16 29 3 16z M16 10v12 M10 16h12"/></g>
+<g transform="translate(296 8)"><path d="M4 9h24 M11 9V5h10v4 M7 9l2 19h14l2-19 M13 14v9 M19 14v9"/></g>
+<g transform="translate(344 8)"><path d="M16 3 28 9v14l-12 6-12-6V9z M4 9l12 6 12-6 M16 15v14"/></g>
+<g transform="translate(392 8)"><path d="M17 3c1 7-4 8-3 13-3-1-4-3-4-6-8 8-5 18 5 19 9 1 15-5 12-13-1 4-3 4-4 4 1-8-3-12-6-17z"/></g>
+<g transform="translate(8 56)"><path d="M5 12h6l8-7v22l-8-7H5z M23 11c3 3 3 7 0 10 M26 8c5 5 5 11 0 16"/></g>
+<g transform="translate(56 56)"><circle cx="14" cy="14" r="9"/><path d="m21 21 7 7"/></g>
+<g transform="translate(104 56)"><path d="M16 3v26 M3 16h26 M12 7l4-4 4 4 M12 25l4 4 4-4 M7 12l-4 4 4 4 M25 12l4 4-4 4"/></g>
+<g transform="translate(152 56)"><path d="M26 13a11 11 0 1 1-5-7 M20 2v6h6"/></g>
+<g transform="translate(200 56)"><path d="M7 6h13v13H7z M12 19v7h14V12h-6"/></g>
+<g transform="translate(248 56)"><path d="M4 16s5-8 12-8 12 8 12 8-5 8-12 8S4 16 4 16z"/><circle cx="16" cy="16" r="3"/></g>
+<g transform="translate(296 56)"><path d="M8 14v-4a8 8 0 0 1 16 0v4 M7 14h18v14H7z"/><circle cx="16" cy="20" r="1"/></g>
+<g transform="translate(344 56)"><circle cx="16" cy="6" r="3"/><path d="M16 10v9 M10 14l6-3 6 3 M16 19l-5 9 M16 19l5 9"/></g>
+<g transform="translate(392 56)"><path d="M16 4v24 M4 16h24"/><circle cx="16" cy="16" r="11"/></g>
+</svg>
