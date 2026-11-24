@@ -117,101 +117,49 @@ return {
                 } },
             },
             Build = function(env)
-                local RunService = game:GetService("RunService")
-                local ContentProvider = game:GetService("ContentProvider")
-                local holder = Instance.new("Frame")
-                holder.Name = "DragonOrbitaSprite"
-                holder.AnchorPoint = Vector2.new(0.5, 0.5)
-                holder.Position = UDim2.fromScale(0.5, 0.5)
-                holder.Size = UDim2.fromScale(1.6, 1.6)
-                holder.BackgroundTransparency = 1
-                holder.ClipsDescendants = true
-                holder.ZIndex = env.Parent.ZIndex + 1
-                holder.Parent = env.Parent
-                local placeholder = Instance.new("ImageLabel")
-                placeholder.Name = "Vista"
-                placeholder.Size = UDim2.fromScale(1, 1)
-                placeholder.BackgroundTransparency = 1
-                placeholder.Image = vortexPreview or "rbxassetid://128134413693939"
-                placeholder.ScaleType = Enum.ScaleType.Fit
-                placeholder.ZIndex = holder.ZIndex + 1
-                placeholder.Parent = holder
-                local function makeSheet(id)
-                    local image = Instance.new("ImageLabel")
-                    image.Name = "Hoja"
-                    image.BackgroundTransparency = 1
-                    image.ScaleType = Enum.ScaleType.Stretch
-                    image.Size = UDim2.fromScale(3, 2)
-                    image.Position = UDim2.fromScale(0, 0)
-                    image.Image = "rbxassetid://" .. id
-                    image.Visible = false
-                    image.ZIndex = holder.ZIndex + 1
-                    image.Parent = holder
-                    return image
-                end
-                local sheets = { makeSheet("136512338183352"), makeSheet("115079334977817") }
-                local fallback = makeSheet("0")
-                fallback.Name = "Respaldo"
-                local alive, conn, elapsed, previous, previousSource = true, nil, 0, -1, nil
-                local function resolveDecal(label, id)
-                    if not alive or label.IsLoaded then return end
-                    -- Algunos IDs corresponden al decal; extraer Texture si el ejecutor lo permite.
+                -- Igual que el personaje junto a la boombox: se recorta una
+                -- celda con un viewport y se cambia la posición de la hoja.
+                local viewport = Instance.new("Frame")
+                viewport.Name = "DragonOrbitaSprite"
+                viewport.AnchorPoint = Vector2.new(0.5, 0.5)
+                viewport.Position = UDim2.fromScale(0.5, 0.5)
+                viewport.Size = UDim2.fromScale(1.6, 1.6)
+                viewport.BackgroundTransparency = 1
+                viewport.BorderSizePixel = 0
+                viewport.ClipsDescendants = true
+                viewport.ZIndex = env.Parent.ZIndex + 1
+                viewport.Parent = env.Parent
+
+                local sheets = {
+                    "rbxassetid://136512338183352",
+                    "rbxassetid://115079334977817",
+                }
+                local sprite = Instance.new("ImageLabel")
+                sprite.Name = "DragonSprite"
+                sprite.Size = UDim2.fromScale(3, 2)
+                sprite.Position = UDim2.fromScale(0, 0)
+                sprite.BackgroundTransparency = 1
+                sprite.BorderSizePixel = 0
+                sprite.Image = sheets[1]
+                sprite.ScaleType = Enum.ScaleType.Stretch
+                sprite.ZIndex = viewport.ZIndex + 1
+                sprite.Parent = viewport
+
+                task.spawn(function()
                     pcall(function()
-                        local objects = game:GetObjects("rbxassetid://" .. id)
-                        for _, object in ipairs(objects or {}) do
-                            local decal = object:IsA("Decal") and object or object:FindFirstChildWhichIsA("Decal", true)
-                            local texture = decal and decal.Texture
-                            if alive and type(texture) == "string" and texture ~= "" then label.Image = texture end
-                            object:Destroy()
-                            if texture and texture ~= "" then break end
-                        end
+                        game:GetService("ContentProvider"):PreloadAsync(sheets)
                     end)
-                end
-                task.spawn(function() pcall(function() ContentProvider:PreloadAsync({placeholder}) end) end)
-                task.spawn(function() pcall(function() ContentProvider:PreloadAsync(sheets) end) end)
-                task.delay(3, function()
-                    if not alive then return end
-                    if not sheets[1].IsLoaded then task.spawn(resolveDecal, sheets[1], "136512338183352") end
-                    if not sheets[2].IsLoaded then task.spawn(resolveDecal, sheets[2], "115079334977817") end
                 end)
-                task.delay(5, function()
-                    if not alive or (sheets[1].IsLoaded and sheets[2].IsLoaded) then return end
-                    warn("[Yin Yang] Una hoja de Roblox no cargó; usando sprite de respaldo si está disponible.")
-                    local asset = vortexLocalImage("YY_DragonOrbitaAtlas_v1.png",
-                        "https://raw.githubusercontent.com/YinScripts/Yin-logos/main/sprites/dragon-orbita-v1.png")
-                    if alive and asset then
-                        fallback.Image = asset
-                        pcall(function() ContentProvider:PreloadAsync({fallback}) end)
+
+                task.spawn(function()
+                    local index = 0
+                    while viewport.Parent do
+                        local frame = index % 6
+                        sprite.Image = sheets[math.floor(index / 6) + 1]
+                        sprite.Position = UDim2.fromScale(-(frame % 3), -math.floor(frame / 3))
+                        index = (index + 1) % 12
+                        task.wait(0.125)
                     end
-                end)
-                conn = RunService.RenderStepped:Connect(function(dt)
-                    if not alive or not holder.Parent then return end
-                    elapsed = elapsed + math.min(dt, 0.1)
-                    local source, frame
-                    if sheets[1].IsLoaded and sheets[2].IsLoaded then
-                        local index = math.floor(elapsed * 8) % 12
-                        source = sheets[math.floor(index / 6) + 1]
-                        frame = index % 6
-                    elseif fallback.IsLoaded then
-                        source, frame = fallback, math.floor(elapsed * 4) % 6
-                    elseif sheets[1].IsLoaded then
-                        source, frame = sheets[1], math.floor(elapsed * 4) % 6
-                    elseif sheets[2].IsLoaded then
-                        source, frame = sheets[2], math.floor(elapsed * 4) % 6
-                    end
-                    if not source then return end
-                    if source ~= previousSource or frame ~= previous then
-                        source.Position = UDim2.fromScale(-(frame % 3), -math.floor(frame / 3))
-                        sheets[1].Visible = source == sheets[1]
-                        sheets[2].Visible = source == sheets[2]
-                        fallback.Visible = source == fallback
-                        placeholder.Visible = false
-                        previous, previousSource = frame, source
-                    end
-                end)
-                holder.Destroying:Connect(function()
-                    alive = false
-                    if conn then conn:Disconnect(); conn = nil end
                 end)
                 return {}
             end,
