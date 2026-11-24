@@ -99,7 +99,7 @@ return {
                     error("Este ejecutor no admite recursos locales.")
                 end
                 local RunService = game:GetService("RunService")
-                local url = "https://raw.githubusercontent.com/YinScripts/Yin-logos/preview-dragon-orbita/sprites/dragon-orbita-v1.png"
+                local url = "https://raw.githubusercontent.com/YinScripts/Yin-logos/main/sprites/dragon-orbita-v1.png"
                 local file = "YY_DragonOrbitaAtlas_v1.png"
                 local holder = Instance.new("Frame")
                 holder.Name = "DragonOrbitaSprite"
@@ -154,8 +154,8 @@ return {
                     end
                     conn = RunService.RenderStepped:Connect(function(dt)
                         if not alive or not holder.Parent then return end
-                        elapsed = (elapsed + math.min(dt, 0.1)) % 2.7
-                        local phase = elapsed / 0.45
+                        elapsed = (elapsed + math.min(dt, 0.1)) % 1.92
+                        local phase = elapsed / 0.32
                         local frame = math.floor(phase)
                         local alpha = phase - frame
                         a.ImageRectOffset = offset(frame)
