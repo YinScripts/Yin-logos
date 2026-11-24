@@ -84,9 +84,90 @@ return {
         "Halloween",
         "Butterflies",
         "EclipseLunar",
+        "DragonOrbitaSprite",
     },
 
     Icons = {
+        DragonOrbitaSprite = {
+            LabelES = "Dragón del Vórtice",
+            LabelEN = "Vortex Dragon",
+            NoBackground = true,
+            -- La imagen existente actúa como respaldo si no hay custom assets.
+            Layers = { { Image = "rbxassetid://128134413693939", Movement = "None" } },
+            Build = function(env)
+                if type(writefile) ~= "function" or type(getcustomasset) ~= "function" then
+                    error("Este ejecutor no admite recursos locales.")
+                end
+                local RunService = game:GetService("RunService")
+                local url = "https://raw.githubusercontent.com/YinScripts/Yin-logos/preview-dragon-orbita/sprites/dragon-orbita-v1.png"
+                local file = "YY_DragonOrbitaAtlas_v1.png"
+                local holder = Instance.new("Frame")
+                holder.Name = "DragonOrbitaSprite"
+                holder.AnchorPoint = Vector2.new(0.5, 0.5)
+                holder.Position = UDim2.fromScale(0.5, 0.5)
+                holder.Size = UDim2.fromScale(2, 2)
+                holder.BackgroundTransparency = 1
+                holder.ZIndex = env.Parent.ZIndex + 1
+                holder.Parent = env.Parent
+                local function layer(z)
+                    local image = Instance.new("ImageLabel")
+                    image.BackgroundTransparency = 1
+                    image.Size = UDim2.fromScale(1, 1)
+                    image.ScaleType = Enum.ScaleType.Fit
+                    image.ZIndex = holder.ZIndex + z
+                    image.Parent = holder
+                    return image
+                end
+                local fallback = layer(0)
+                fallback.Image = "rbxassetid://128134413693939"
+                local a, b = layer(1), layer(2)
+                a.Visible = false
+                b.Visible = false
+                local alive = true
+                local conn
+                holder.Destroying:Connect(function()
+                    alive = false
+                    if conn then conn:Disconnect(); conn = nil end
+                end)
+                task.spawn(function()
+                    local ok, asset = pcall(function()
+                        if type(isfile) ~= "function" or not isfile(file) then
+                            local bytes = game:HttpGet(url)
+                            if type(bytes) ~= "string" or bytes:sub(1,8) ~= "\137PNG\r\n\26\n" then
+                                error("No se pudo descargar el PNG.")
+                            end
+                            writefile(file, bytes)
+                        end
+                        return getcustomasset(file)
+                    end)
+                    if not alive then return end
+                    if not ok or type(asset) ~= "string" or asset == "" then
+                        warn("[Yin Yang] Dragón del Vórtice: no se pudo cargar el sprite.")
+                        return
+                    end
+                    a.Image, b.Image = asset, asset
+                    a.ImageRectSize, b.ImageRectSize = Vector2.new(512,512), Vector2.new(512,512)
+                    a.Visible, b.Visible, fallback.Visible = true, true, false
+                    local elapsed = 0
+                    local function offset(frame)
+                        return Vector2.new((frame % 3) * 512, math.floor(frame / 3) * 512)
+                    end
+                    conn = RunService.RenderStepped:Connect(function(dt)
+                        if not alive or not holder.Parent then return end
+                        elapsed = (elapsed + math.min(dt, 0.1)) % 2.7
+                        local phase = elapsed / 0.45
+                        local frame = math.floor(phase)
+                        local alpha = phase - frame
+                        a.ImageRectOffset = offset(frame)
+                        b.ImageRectOffset = offset((frame + 1) % 6)
+                        b.ImageTransparency = 1 - alpha
+                    end)
+                end)
+                return {}
+            end,
+        },
+
+
         --// ✅ VERIFICADO: es el ícono flotante actual de la librería
         --// (2 capas: logo base fijo + anillo que gira encima)
         ClassicYinYang = {
