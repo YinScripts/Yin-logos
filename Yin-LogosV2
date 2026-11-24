@@ -70,6 +70,22 @@
     ════════════════════════════════════════════════════════════════
 ]]
 
+-- Recursos locales solo si el ejecutor los admite. Una sola descarga por archivo.
+local function vortexLocalImage(file, url)
+    if type(writefile) ~= "function" or type(getcustomasset) ~= "function" then return nil end
+    local ok, result = pcall(function()
+        if type(isfile) ~= "function" or not isfile(file) then
+            local data = game:HttpGet(url)
+            if type(data) ~= "string" or data:sub(1,8) ~= "\137PNG\r\n\26\n" then error("PNG inválido") end
+            writefile(file, data)
+        end
+        return getcustomasset(file)
+    end)
+    return ok and type(result) == "string" and result ~= "" and result or nil
+end
+local vortexPreview = vortexLocalImage("YY_Vortex_Preview_v2.png",
+    "https://raw.githubusercontent.com/YinScripts/Yin-logos/main/sprites/dragon-orbita-preview.png")
+
 return {
     Version = 2,
 
@@ -92,25 +108,17 @@ return {
             LabelES = "Dragón del Vórtice",
             LabelEN = "Vortex Dragon",
             NoBackground = true,
-            -- El motor existente usa la primera celda como miniatura de la tarjeta.
-            Layers = {
-                {
-                    Movement = "None",
-                    Scale = 1.6,
-                    SpriteSheet = {
-                        SheetIds = { "136512338183352", "115079334977817" },
-                        Columns = 3, Rows = 2,
-                        FrameWidth = 512, FrameHeight = 512,
-                        FramesPerSheet = { 6, 6 },
-                        FPS = 8,
-                    },
-                },
+            Layers = vortexPreview and {
+                { Image = vortexPreview, Movement = "None" },
+            } or {
+                { Movement = "None", SpriteSheet = {
+                    SheetIds = { "136512338183352" }, Columns = 3, Rows = 2,
+                    FrameWidth = 512, FrameHeight = 512, FramesPerSheet = { 6 }, FPS = 8,
+                } },
             },
             Build = function(env)
                 local RunService = game:GetService("RunService")
                 local ContentProvider = game:GetService("ContentProvider")
-                -- Se recorta por proporciones, no por píxeles: sigue funcionando
-                -- aunque el cliente reduzca la resolución de la imagen subida.
                 local holder = Instance.new("Frame")
                 holder.Name = "DragonOrbitaSprite"
                 holder.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -120,7 +128,14 @@ return {
                 holder.ClipsDescendants = true
                 holder.ZIndex = env.Parent.ZIndex + 1
                 holder.Parent = env.Parent
-
+                local placeholder = Instance.new("ImageLabel")
+                placeholder.Name = "Vista"
+                placeholder.Size = UDim2.fromScale(1, 1)
+                placeholder.BackgroundTransparency = 1
+                placeholder.Image = vortexPreview or "rbxassetid://128134413693939"
+                placeholder.ScaleType = Enum.ScaleType.Fit
+                placeholder.ZIndex = holder.ZIndex + 1
+                placeholder.Parent = holder
                 local function makeSheet(id)
                     local image = Instance.new("ImageLabel")
                     image.Name = "Hoja"
@@ -135,33 +150,68 @@ return {
                     return image
                 end
                 local sheets = { makeSheet("136512338183352"), makeSheet("115079334977817") }
-                local previous = -1
-                local elapsed = 0
-                local alive = true
-                local conn
-                local function showFrame(frame)
-                    if frame == previous then return end
-                    previous = frame
-                    local sheetIndex = math.floor(frame / 6) + 1
-                    local localFrame = frame % 6
-                    local active = sheets[sheetIndex]
-                    active.Position = UDim2.fromScale(-(localFrame % 3), -math.floor(localFrame / 3))
-                    sheets[1].Visible = sheetIndex == 1
-                    sheets[2].Visible = sheetIndex == 2
+                local fallback = makeSheet("0")
+                fallback.Name = "Respaldo"
+                local alive, conn, elapsed, previous, previousSource = true, nil, 0, -1, nil
+                local function resolveDecal(label, id)
+                    if not alive or label.IsLoaded then return end
+                    -- Algunos IDs corresponden al decal; extraer Texture si el ejecutor lo permite.
+                    pcall(function()
+                        local objects = game:GetObjects("rbxassetid://" .. id)
+                        for _, object in ipairs(objects or {}) do
+                            local decal = object:IsA("Decal") and object or object:FindFirstChildWhichIsA("Decal", true)
+                            local texture = decal and decal.Texture
+                            if alive and type(texture) == "string" and texture ~= "" then label.Image = texture end
+                            object:Destroy()
+                            if texture and texture ~= "" then break end
+                        end
+                    end)
                 end
-                showFrame(0)
+                task.spawn(function() pcall(function() ContentProvider:PreloadAsync({placeholder}) end) end)
+                task.spawn(function() pcall(function() ContentProvider:PreloadAsync(sheets) end) end)
+                task.delay(3, function()
+                    if not alive then return end
+                    if not sheets[1].IsLoaded then task.spawn(resolveDecal, sheets[1], "136512338183352") end
+                    if not sheets[2].IsLoaded then task.spawn(resolveDecal, sheets[2], "115079334977817") end
+                end)
+                task.delay(5, function()
+                    if not alive or (sheets[1].IsLoaded and sheets[2].IsLoaded) then return end
+                    warn("[Yin Yang] Una hoja de Roblox no cargó; usando sprite de respaldo si está disponible.")
+                    local asset = vortexLocalImage("YY_DragonOrbitaAtlas_v1.png",
+                        "https://raw.githubusercontent.com/YinScripts/Yin-logos/main/sprites/dragon-orbita-v1.png")
+                    if alive and asset then
+                        fallback.Image = asset
+                        pcall(function() ContentProvider:PreloadAsync({fallback}) end)
+                    end
+                end)
+                conn = RunService.RenderStepped:Connect(function(dt)
+                    if not alive or not holder.Parent then return end
+                    elapsed = elapsed + math.min(dt, 0.1)
+                    local source, frame
+                    if sheets[1].IsLoaded and sheets[2].IsLoaded then
+                        local index = math.floor(elapsed * 8) % 12
+                        source = sheets[math.floor(index / 6) + 1]
+                        frame = index % 6
+                    elseif fallback.IsLoaded then
+                        source, frame = fallback, math.floor(elapsed * 4) % 6
+                    elseif sheets[1].IsLoaded then
+                        source, frame = sheets[1], math.floor(elapsed * 4) % 6
+                    elseif sheets[2].IsLoaded then
+                        source, frame = sheets[2], math.floor(elapsed * 4) % 6
+                    end
+                    if not source then return end
+                    if source ~= previousSource or frame ~= previous then
+                        source.Position = UDim2.fromScale(-(frame % 3), -math.floor(frame / 3))
+                        sheets[1].Visible = source == sheets[1]
+                        sheets[2].Visible = source == sheets[2]
+                        fallback.Visible = source == fallback
+                        placeholder.Visible = false
+                        previous, previousSource = frame, source
+                    end
+                end)
                 holder.Destroying:Connect(function()
                     alive = false
                     if conn then conn:Disconnect(); conn = nil end
-                end)
-                task.spawn(function()
-                    pcall(function() ContentProvider:PreloadAsync(sheets) end)
-                    if not alive then return end
-                    conn = RunService.RenderStepped:Connect(function(dt)
-                        if not alive or not holder.Parent then return end
-                        elapsed = (elapsed + math.min(dt, 0.1)) % 1.5
-                        showFrame(math.floor(elapsed * 8))
-                    end)
                 end)
                 return {}
             end,
