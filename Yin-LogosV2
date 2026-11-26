@@ -108,17 +108,16 @@ return {
             LabelES = "Dragón del Vórtice",
             LabelEN = "Vortex Dragon",
             NoBackground = true,
-            Layers = vortexPreview and {
-                { Image = vortexPreview, Movement = "None" },
-            } or {
+            -- La vista previa usa un fotograma; si Build falla, la UI
+            -- reproduce esta hoja mediante su soporte nativo de sprites.
+            Layers = {
                 { Movement = "None", SpriteSheet = {
-                    SheetIds = { "136512338183352" }, Columns = 3, Rows = 2,
-                    FrameWidth = 512, FrameHeight = 512, FramesPerSheet = { 6 }, FPS = 8,
+                    SheetIds = { "136512338183352" },
+                    Columns = 3, Rows = 2, FrameWidth = 512, FrameHeight = 512,
+                    FramesPerSheet = { 6 }, FPS = 8,
                 } },
             },
             Build = function(env)
-                -- Igual que el personaje junto a la boombox: se recorta una
-                -- celda con un viewport y se cambia la posición de la hoja.
                 local viewport = Instance.new("Frame")
                 viewport.Name = "DragonOrbitaSprite"
                 viewport.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -145,17 +144,23 @@ return {
                 sprite.ZIndex = viewport.ZIndex + 1
                 sprite.Parent = viewport
 
+                print("[YinYang Dragon v3] Animación iniciada: 2 hojas, 12 cuadros")
                 task.spawn(function()
-                    pcall(function()
-                        game:GetService("ContentProvider"):PreloadAsync(sheets)
+                    local ok, err = pcall(function()
+                        game:GetService("ContentProvider"):PreloadAsync(sheets, function(asset, status)
+                            print("[YinYang Dragon v3] Carga " .. tostring(asset) .. ": " .. tostring(status))
+                        end)
                     end)
+                    if not ok then
+                        warn("[YinYang Dragon v3] No se pudo precargar: " .. tostring(err))
+                    end
                 end)
-
                 task.spawn(function()
                     local index = 0
-                    while viewport.Parent do
+                    while viewport.Parent and sprite.Parent do
                         local frame = index % 6
-                        sprite.Image = sheets[math.floor(index / 6) + 1]
+                        local source = sheets[math.floor(index / 6) + 1]
+                        if sprite.Image ~= source then sprite.Image = source end
                         sprite.Position = UDim2.fromScale(-(frame % 3), -math.floor(frame / 3))
                         index = (index + 1) % 12
                         task.wait(0.125)
