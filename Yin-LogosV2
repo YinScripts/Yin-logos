@@ -70,7 +70,23 @@
     ════════════════════════════════════════════════════════════════
 ]]
 
--- Recursos locales solo si el ejecutor los admite. Una sola descarga por archivo.
+-- ════════════════════════════════════════════════════════════════
+-- DRAGÓN DEL VÓRTICE (v4): 2 hojas de Roblox de 3 columnas × 2 filas = 12 cuadros.
+-- El recorte se hace por ESCALA (una imagen 3×2 veces más grande que un cuadro, dentro de un
+-- Frame con ClipsDescendants), así no importa si Roblox achica la hoja (1536×1024 se guarda a
+-- un máximo de 1024 de lado): ImageRectOffset en píxeles fijos (512) cortaba mal por eso.
+-- Funciona de dos maneras:
+--   1) Librerías con soporte de Build: Build arma el dragón animado en el botón flotante.
+--   2) Librerías sin Build y la miniatura de la pestaña Logo: la capa usa VORTEX_MARCA como
+--      imagen y un vigilante (un solo hilo) reemplaza esa imagen por el dragón animado.
+-- Si Roblox no carga la hoja 1, se usa la copia de GitHub (sprites/dragon-orbita-v1.png) con
+-- getcustomasset, solo si el ejecutor lo admite. Mensajes en consola: "[YinYang Dragon v4]".
+-- ════════════════════════════════════════════════════════════════
+local VORTEX_HOJAS = { "rbxassetid://136512338183352", "rbxassetid://115079334977817" }
+local VORTEX_MARCA = VORTEX_HOJAS[1]
+local VORTEX_FPS = 10
+
+-- Recurso local solo si el ejecutor lo admite (y solo cuando hace falta). Una sola descarga.
 local function vortexLocalImage(file, url)
     if type(writefile) ~= "function" or type(getcustomasset) ~= "function" then return nil end
     local ok, result = pcall(function()
@@ -83,8 +99,117 @@ local function vortexLocalImage(file, url)
     end)
     return ok and type(result) == "string" and result ~= "" and result or nil
 end
-local vortexPreview = vortexLocalImage("YY_Vortex_Preview_v2.png",
-    "https://raw.githubusercontent.com/YinScripts/Yin-logos/main/sprites/dragon-orbita-preview.png")
+
+-- Qué hojas cargaron (se averigua una vez y lo comparten todos los dragones)
+local vortexFuentes = nil -- lista de {imagen, cuadros}
+local vortexListo = false
+task.spawn(function()
+    local estado = {}
+    local ok, err = pcall(function()
+        game:GetService("ContentProvider"):PreloadAsync(VORTEX_HOJAS, function(asset, status)
+            estado[asset] = status
+        end)
+    end)
+    if not ok then warn("[YinYang Dragon v4] No se pudo precargar: " .. tostring(err)) end
+    local fuentes = {}
+    for i, id in ipairs(VORTEX_HOJAS) do
+        local st = estado[id]
+        print("[YinYang Dragon v4] Hoja " .. i .. " (" .. id .. "): " .. tostring(st))
+        if st == Enum.AssetFetchStatus.Success or st == nil then
+            fuentes[#fuentes + 1] = id
+        elseif i == 1 then
+            local local1 = vortexLocalImage("YY_Vortex_Sheet1_v1.png",
+                "https://raw.githubusercontent.com/YinScripts/Yin-logos/main/sprites/dragon-orbita-v1.png")
+            if local1 then
+                print("[YinYang Dragon v4] Hoja 1 desde GitHub (getcustomasset)")
+                fuentes[#fuentes + 1] = local1
+            end
+        end
+    end
+    if #fuentes == 0 then
+        warn("[YinYang Dragon v4] Ninguna hoja cargó: se intenta igual con las de Roblox")
+        fuentes = { VORTEX_HOJAS[1], VORTEX_HOJAS[2] }
+    end
+    vortexFuentes = fuentes
+    vortexListo = true
+end)
+
+-- Arma el dragón animado dentro de "parent" (ocupa escala x escala del padre, centrado)
+local function vortexAnimar(parent, zindex, escala)
+    local clip = Instance.new("Frame")
+    clip.Name = "DragonOrbitaSprite"
+    clip.AnchorPoint = Vector2.new(0.5, 0.5)
+    clip.Position = UDim2.fromScale(0.5, 0.5)
+    clip.Size = UDim2.fromScale(escala, escala)
+    clip.BackgroundTransparency = 1
+    clip.BorderSizePixel = 0
+    clip.ClipsDescendants = true
+    clip.ZIndex = zindex
+    clip.Parent = parent
+
+    local hoja = Instance.new("ImageLabel")
+    hoja.Name = "DragonHoja"
+    hoja.Size = UDim2.fromScale(3, 2)          -- la hoja entera: 3 cuadros de ancho, 2 de alto
+    hoja.Position = UDim2.fromScale(0, 0)
+    hoja.BackgroundTransparency = 1
+    hoja.BorderSizePixel = 0
+    hoja.ScaleType = Enum.ScaleType.Stretch
+    hoja.Image = VORTEX_HOJAS[1]
+    hoja.ZIndex = zindex + 1
+    hoja.Parent = clip
+
+    task.spawn(function()
+        local cuadro = 0
+        while clip.Parent do
+            local fuentes = vortexFuentes or VORTEX_HOJAS
+            local total = #fuentes * 6
+            cuadro = cuadro % total
+            local img = fuentes[math.floor(cuadro / 6) + 1]
+            local f = cuadro % 6
+            if hoja.Image ~= img then hoja.Image = img end
+            hoja.Position = UDim2.fromScale(-(f % 3), -math.floor(f / 3))
+            cuadro = cuadro + 1
+            task.wait(1 / VORTEX_FPS)
+        end
+    end)
+    return clip
+end
+
+-- Vigilante: convierte en dragón animado toda imagen VORTEX_MARCA de la librería
+-- (botón flotante en librerías sin Build y miniaturas de la pestaña Logo). Un solo hilo.
+do
+    local genv = (type(getgenv) == "function" and getgenv()) or _G
+    local token = {}
+    genv.YY_VortexVigilante = token
+    local function convertir(o)
+        if o:IsA("ImageLabel") and o.Image == VORTEX_MARCA and o.Name ~= "DragonHoja" and not o:GetAttribute("YYVortex") then
+            o:SetAttribute("YYVortex", true)
+            o.ImageTransparency = 1
+            vortexAnimar(o, o.ZIndex + 1, 1)
+        end
+    end
+    task.spawn(function()
+        local vistos = setmetatable({}, { __mode = "k" })
+        while genv.YY_VortexVigilante == token do
+            local raices = {}
+            pcall(function() if type(gethui) == "function" then raices[#raices + 1] = gethui() end end)
+            pcall(function() raices[#raices + 1] = game:GetService("CoreGui") end)
+            pcall(function() raices[#raices + 1] = game:GetService("Players").LocalPlayer:FindFirstChildOfClass("PlayerGui") end)
+            for _, r in ipairs(raices) do
+                local gui = r and r:FindFirstChild("ZeroMobile")
+                if gui and not vistos[gui] then
+                    vistos[gui] = true
+                    for _, d in ipairs(gui:GetDescendants()) do pcall(convertir, d) end
+                    gui.DescendantAdded:Connect(function(d)
+                        if genv.YY_VortexVigilante ~= token then return end
+                        task.defer(function() pcall(convertir, d) end)
+                    end)
+                end
+            end
+            task.wait(2)
+        end
+    end)
+end
 
 return {
     Version = 2,
@@ -108,64 +233,13 @@ return {
             LabelES = "Dragón del Vórtice",
             LabelEN = "Vortex Dragon",
             NoBackground = true,
-            -- La vista previa usa un fotograma; si Build falla, la UI
-            -- reproduce esta hoja mediante su soporte nativo de sprites.
+            -- Sin Build (o en la pestaña Logo) se ve esta capa y el vigilante de arriba la anima.
             Layers = {
-                { Movement = "None", SpriteSheet = {
-                    SheetIds = { "136512338183352" },
-                    Columns = 3, Rows = 2, FrameWidth = 512, FrameHeight = 512,
-                    FramesPerSheet = { 6 }, FPS = 8,
-                } },
+                { Image = VORTEX_MARCA, Movement = "None" },
             },
             Build = function(env)
-                local viewport = Instance.new("Frame")
-                viewport.Name = "DragonOrbitaSprite"
-                viewport.AnchorPoint = Vector2.new(0.5, 0.5)
-                viewport.Position = UDim2.fromScale(0.5, 0.5)
-                viewport.Size = UDim2.fromScale(1.6, 1.6)
-                viewport.BackgroundTransparency = 1
-                viewport.BorderSizePixel = 0
-                viewport.ClipsDescendants = true
-                viewport.ZIndex = env.Parent.ZIndex + 1
-                viewport.Parent = env.Parent
-
-                local sheets = {
-                    "rbxassetid://136512338183352",
-                    "rbxassetid://115079334977817",
-                }
-                local sprite = Instance.new("ImageLabel")
-                sprite.Name = "DragonSprite"
-                sprite.Size = UDim2.fromScale(3, 2)
-                sprite.Position = UDim2.fromScale(0, 0)
-                sprite.BackgroundTransparency = 1
-                sprite.BorderSizePixel = 0
-                sprite.Image = sheets[1]
-                sprite.ScaleType = Enum.ScaleType.Stretch
-                sprite.ZIndex = viewport.ZIndex + 1
-                sprite.Parent = viewport
-
-                print("[YinYang Dragon v3] Animación iniciada: 2 hojas, 12 cuadros")
-                task.spawn(function()
-                    local ok, err = pcall(function()
-                        game:GetService("ContentProvider"):PreloadAsync(sheets, function(asset, status)
-                            print("[YinYang Dragon v3] Carga " .. tostring(asset) .. ": " .. tostring(status))
-                        end)
-                    end)
-                    if not ok then
-                        warn("[YinYang Dragon v3] No se pudo precargar: " .. tostring(err))
-                    end
-                end)
-                task.spawn(function()
-                    local index = 0
-                    while viewport.Parent and sprite.Parent do
-                        local frame = index % 6
-                        local source = sheets[math.floor(index / 6) + 1]
-                        if sprite.Image ~= source then sprite.Image = source end
-                        sprite.Position = UDim2.fromScale(-(frame % 3), -math.floor(frame / 3))
-                        index = (index + 1) % 12
-                        task.wait(0.125)
-                    end
-                end)
+                print("[YinYang Dragon v4] Build: dragón animado en el botón flotante")
+                vortexAnimar(env.Parent, env.Parent.ZIndex + 1, 1.6)
                 return {}
             end,
         },
